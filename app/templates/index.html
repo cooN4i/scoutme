@@ -1,0 +1,109 @@
+{% extends "base.html" %}
+
+{% block title %}ScoutMe - Find Football Talents{% endblock %}
+
+{% block content %}
+<div class="lg:flex lg:gap-8">
+    
+    <section class="lg:w-3/4 flex flex-col justify-between order-first">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6 mb-8">
+            
+            {% for player in players %}
+            <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden flex flex-col hover:shadow-md transition">
+                <div class="relative bg-gray-100 h-56 w-full overflow-hidden border-b border-gray-100">
+                    <img src="{% if player.photo_url %}{{ player.photo_url }}{% else %}https://images.unsplash.com/photo-1508098682722-e99c43a406b2?w=500&auto=format&fit=crop&q=60{% endif %}" alt="Player Thumbnail" class="w-full h-full object-cover">
+                    <span class="absolute top-3 right-3 bg-blue-600 text-white text-xs font-extrabold px-2.5 py-1 rounded-md shadow-sm">
+                        {{ player.main_position.name }}
+                    </span>
+                </div>
+                <div class="p-5 flex-grow flex flex-col justify-between">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900 mb-1">
+                            {{ player.first_name }} {{ player.last_name }}
+                        </h3>
+                        <p class="text-sm text-gray-500 font-medium mb-3">
+                            {{ player.current_club if player.current_club else "Free Agent" }}
+                        </p>
+                        <div class="grid grid-cols-2 gap-y-2 text-xs text-gray-600 border-t border-gray-100 pt-3">
+                            <div>🌍 <span class="font-medium text-gray-900">{{ player.citizenship }}</span></div>
+                            <div>🦶 <span class="font-medium text-gray-900">{{ player.preferred_foot }}</span></div>
+                            <div>📅 <span class="font-medium text-gray-900">{{ player.age }} y.o.</span></div>
+                        </div>
+                    </div>
+                    <a href="/player/{{ player.id }}" class="mt-5 w-full text-center bg-gray-100 hover:bg-gray-200 text-blue-900 font-semibold py-2 rounded-lg text-sm transition">
+                        View Profile
+                    </a>
+                </div>
+            </div>
+            {% else %}
+            <div class="col-span-full text-center py-12 bg-white rounded-xl border border-dashed border-gray-300 p-8 text-gray-500">
+                <p class="text-base font-medium">No players found.</p>
+            </div>
+            {% endfor %}
+
+        </div>
+
+        {% if total_pages > 1 %}
+        <nav class="flex items-center justify-between border-t border-gray-200 px-4 sm:px-0 pt-4">
+            <div class="-mt-px flex w-0 flex-1">
+                {% if current_page > 1 %}
+                <a href="/?page={{ current_page - 1 }}{% if selected_position %}&position={{ selected_position }}{% endif %}{% if selected_nationality %}&nationality={{ selected_nationality }}{% endif %}" class="inline-flex items-center border-t-2 border-transparent pr-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                    ← Previous
+                </a>
+                {% endif %}
+            </div>
+            <div class="hidden md:-mt-px md:flex">
+                {% for p in range(1, total_pages + 1) %}
+                <a href="/?page={{ p }}{% if selected_position %}&position={{ selected_position }}{% endif %}{% if selected_nationality %}&nationality={{ selected_nationality }}{% endif %}" class="inline-flex items-center border-t-2 {% if p == current_page %}border-blue-500 text-blue-600{% else %}border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700{% endif %} px-4 pt-4 text-sm font-medium">
+                    {{ p }}
+                </a>
+                {% endfor %}
+            </div>
+            <div class="-mt-px flex w-0 flex-1 justify-end">
+                {% if current_page < total_pages %}
+                <a href="/?page={{ current_page + 1 }}{% if selected_position %}&position={{ selected_position }}{% endif %}{% if selected_nationality %}&nationality={{ selected_nationality }}{% endif %}" class="inline-flex items-center border-t-2 border-transparent pl-1 pt-4 text-sm font-medium text-gray-500 hover:border-gray-300 hover:text-gray-700">
+                    Next →
+                </a>
+                {% endif %}
+            </div>
+        </nav>
+        {% endif %}
+
+    </section>
+
+    <aside class="lg:w-1/4 bg-white p-6 rounded-xl border border-gray-200 shadow-sm mb-6 lg:mb-0 h-fit">
+        <h2 class="text-lg font-bold text-gray-900 mb-4 flex items-center gap-2">
+            ⚡ Filters
+        </h2>
+        <form method="GET" action="/" class="space-y-4">
+            <div>
+                <label for="position" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Position</label>
+                <select id="position" name="position" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+                    <option value="">All Positions</option>
+                    <option value="GK" {% if selected_position == "GK" %}selected{% endif %}>GK</option>
+                    <option value="LB" {% if selected_position == "LB" %}selected{% endif %}>LB</option>
+                    <option value="RB" {% if selected_position == "RB" %}selected{% endif %}>RB</option>
+                    <option value="CB" {% if selected_position == "CB" %}selected{% endif %}>CB</option>
+                    <option value="CDM" {% if selected_position == "CDM" %}selected{% endif %}>CDM</option>
+                    <option value="CM" {% if selected_position == "CM" %}selected{% endif %}>CM</option>
+                    <option value="CAM" {% if selected_position == "CAM" %}selected{% endif %}>CAM</option>
+                    <option value="LM" {% if selected_position == "LM" %}selected{% endif %}>LM</option>
+                    <option value="RM" {% if selected_position == "RM" %}selected{% endif %}>RM</option>
+                    <option value="ST" {% if selected_position == "ST" %}selected{% endif %}>ST</option>
+                    <option value="LW" {% if selected_position == "LW" %}selected{% endif %}>LW</option>
+                    <option value="RW" {% if selected_position == "RW" %}selected{% endif %}>RW</option>
+                </select>
+            </div>
+            <div>
+                <label for="nationality" class="block text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">Nationality</label>
+                <input type="text" id="nationality" name="nationality" value="{{ selected_nationality if selected_nationality else '' }}" placeholder="e.g. Norway, Brazil" class="w-full bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5">
+            </div>
+            <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition shadow-sm text-sm">
+                Apply Filters
+            </button>
+        </form>
+    </aside>
+    
+</div>
+{% endblock %}
